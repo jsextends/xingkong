@@ -1,0 +1,17 @@
+{
+  "name": "@jsextends/xingkong",
+  "version": "1.0.0",
+  "description": "这是一个js的canvas二维渲染引擎库",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "doc": "vuepress-jsdoc --source ./src"
+  },
+  "keywords": ["canvas", "engine", "render", "渲染引擎"],
+  "author": "liming_longxi@163.com",
+  "license": "ISC",
+  "dependencies": {
+    "@jsextends/jevent": "^1.1.0",
+    "nanoid": "^5.0.7"
+  }
+}
