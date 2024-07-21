@@ -1,5 +1,4 @@
-/** Class 表示二维坐标系上的点 */
-export default class Point {
+export default class PointGeometry {
     /**
      * @property {Number} x 点的x位置
      * @default 0
@@ -11,14 +10,14 @@ export default class Point {
      * @default 0
      */
     y = 0;
-    
+
     /**
      * 创建一个二维坐标系上的点
      * @param {Number} x 
      * @param {Number} y 
      */
     constructor(x, y) {
-        this.setValues(x, y);
+        this.setValue(x, y);
     }
 
     /**
@@ -26,7 +25,7 @@ export default class Point {
      * @param {Number} [x=0]
      * @param {Number} [y=0]
      */
-    setValues(x = 0, y = 0) {
+    setValue(x = 0, y = 0) {
         this.x = x;
         this.y = y;
     };
@@ -45,12 +44,11 @@ export default class Point {
      * 将一对极坐标转换为笛卡尔点坐标。
      * @param {Number} len 极坐标对的长度坐标
      * @param {Number} angle 以弧度为单位的极对的角度
-     * @param {Point | Object} [pt] 如果pt存在则更新pt的x/y值并返回pt
      * @return {Point}
      * @static
     */
-    static polar(len, angle, pt) {
-        pt = pt || new Point();
+    static polar(len, angle) {
+        const pt = new Point();
         pt.x = len * Math.cos(angle);
         pt.y = len * Math.sin(angle);
         return pt;
@@ -63,12 +61,11 @@ export default class Point {
      * @param {Point | Object} pt1 
      * @param {Point | Object} pt2 
      * @param {Number} f 参数' f '决定了新插值点相对于指定的两个端点的位置
-     * @param {Point | Object} [pt] 如果pt存在则更新pt的x/y值并返回pt
      * @return {Point}
      * @static
     */
-    static interpolate(pt1, pt2, f, pt) {
-        pt = pt || new Point();
+    static interpolate(pt1, pt2, f) {
+        const pt = new Point();
         pt.x = pt2.x + f * (pt1.x - pt2.x);
         pt.y = pt2.y + f * (pt1.y - pt2.y);
         return pt;
@@ -96,6 +93,6 @@ export default class Point {
      * @returns {String}
      */
     toString() {
-        return "[Point (x=" + this.x + " y=" + this.y + ")]";
+        return "[PointGeometry (x=" + this.x + " y=" + this.y + ")]";
     };
 }
