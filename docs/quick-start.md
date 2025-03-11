@@ -7,6 +7,8 @@
 - [点](./geometry/point.md)
 - [圆](./geometry/circle.md)
 - [矩形](./geometry/rect.md)
+- [椭圆](./geometry/ellipse.md)
+- [扇形](./geometry/sector.md)
 
 ## 图形(graphics)
 
