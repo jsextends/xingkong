@@ -25,7 +25,10 @@ export default defineConfig({
       },
       {
         text: "图形",
-        items: [{ text: "圆", link: "/graphics/circle" }],
+        items: [
+          { text: "基类", link: "/graphics/base" },
+          { text: "圆", link: "/graphics/circle" },
+        ],
       },
     ],
 
