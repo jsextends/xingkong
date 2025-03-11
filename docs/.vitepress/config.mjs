@@ -20,6 +20,7 @@ export default defineConfig({
           { text: "矩形", link: "/geometry/rect" },
           { text: "椭圆", link: "/geometry/ellipse" },
           { text: "扇形", link: "/geometry/sector" },
+          { text: "圆环", link: "/geometry/ring" },
         ],
       },
       {

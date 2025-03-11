@@ -109,5 +109,5 @@ const r = circleGeo.getRadius(12);
  * 转化为字符串显示
  * @returns {String}
  */
-const str = pointGeo.toString();
+const str = circleGeo.toString();
 ```

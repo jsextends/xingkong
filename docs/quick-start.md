@@ -9,6 +9,7 @@
 - [矩形](./geometry/rect.md)
 - [椭圆](./geometry/ellipse.md)
 - [扇形](./geometry/sector.md)
+- [圆环](./geometry/ring.md)
 
 ## 图形(graphics)
 

@@ -227,5 +227,5 @@ const r = sectorGeo.getShortRadius();
  * 转化为字符串显示
  * @returns {String}
  */
-const str = rectGeo.toString();
+const str = sectorGeo.toString();
 ```
