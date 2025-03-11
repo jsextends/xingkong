@@ -154,6 +154,11 @@ export default class Base {
    *  @property {String} text 图形的唯一标识
    */
   id = "";
+  
+  /**
+   * @property {CircleGeometry} 图形的几何形状
+   */
+  geom = null
 
   /**
    * 图形类的基类, 抽象类，不能直接new
@@ -162,7 +167,7 @@ export default class Base {
    */
   constructor(type, id) {
     this.type = type;
-    this.id = id || nanoid();
+    this.setId(id);
   }
 
   /**
@@ -179,5 +184,29 @@ export default class Base {
    */
   getId() {
     return this.id;
+  }
+  
+  /**
+   * 返回图形对应的几何形状
+   * @returns 
+   */
+  getGeomerty(){
+    return this.geom;
+  }
+
+  /**
+   * 设置唯一表示
+   * @param {String} id 
+   */
+  setId(id){
+    this.id = id || nanoid();
+  }
+
+  /**
+   * 转为字符串展示
+   * @returns {string}
+   */
+  toString(){
+    return `${this.getType()}Graphics geomerty=${this.getGeomerty().toString()}`
   }
 }

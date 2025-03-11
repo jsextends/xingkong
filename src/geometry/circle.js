@@ -29,7 +29,7 @@ export default class CircleGeometry {
    * @param {Number} radius 
    * @returns 
    */
-  static fromVec2AndValue(Vec2, radius){
+  static fromVec2(Vec2, radius){
     const result = new CircleGeometry(1,1,1)
     result._center.copy(Vec2);
     result.setRadius(radius);
@@ -83,7 +83,7 @@ export default class CircleGeometry {
   }
 
   clone(){
-    return CircleGeometry.fromVec2AndValue(this.getCenter().clone(), this.getRadius())
+    return CircleGeometry.fromVec2(this.getCenter().clone(), this.getRadius())
   }
 
   /**

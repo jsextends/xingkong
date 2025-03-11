@@ -5,7 +5,7 @@ outline: deep
 
 # Base
 
-> **抽象类** 几何形状的基类
+> **抽象类** 几何图形的基类
 
 ## 属性
 
@@ -32,6 +32,33 @@ outline: deep
 ```js
 /**
  * 返回图形的唯一标识
- * @param {Number} radius
+ * @returns {String}
+ */
+```
+
+### setId
+
+```js
+/**
+ * 设置唯一表示
+ * @param {String} id 
+ */
+```
+
+### getGeomerty
+
+```js
+/**
+ * 返回图形对应的几何形状
+ * @returns
+ */
+```
+
+### toString
+
+```js
+/**
+ * 转化为字符串显示
+ * @returns {String}
  */
 ```

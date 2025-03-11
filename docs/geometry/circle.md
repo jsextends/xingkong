@@ -28,7 +28,7 @@ const circleGeo = new CircleGeometry(10, 24, 12);
 
 ## 静态方法
 
-### fromVec2AndValue
+### fromVec2
 
 ```js
 /**
@@ -38,7 +38,7 @@ const circleGeo = new CircleGeometry(10, 24, 12);
  * @returns 
  */
 
-const circleGeo2 = CircleGeometry.fromVec2AndValue(Vec2.fromValues(2,4), 12);
+const circleGeo2 = CircleGeometry.fromVec2(Vec2.fromValues(2,4), 12);
 ```
 
 ## 实例方法
