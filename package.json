@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rollup --config"
+    "build": "rollup --config",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "keywords": [
     "canvas",
@@ -17,10 +20,15 @@
   "license": "ISC",
   "dependencies": {
     "@jsextends/jevent": "^1.1.0",
+    "@jsextends/matrixjs": "^1.0.0",
     "nanoid": "^5.0.7",
     "rollup-plugin-uglify": "^6.0.4"
   },
   "devDependencies": {
-    "rollup": "^4.18.1"
+    "@vuepress/bundler-vite": "^2.0.0-rc.20",
+    "@vuepress/theme-default": "^2.0.0-rc.82",
+    "rollup": "^4.18.1",
+    "vitepress": "^1.6.3",
+    "vuepress": "^2.0.0-rc.20"
   }
 }
