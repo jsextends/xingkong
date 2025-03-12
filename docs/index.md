@@ -7,11 +7,11 @@ hero:
   text: "一个canvas2d的渲染引擎库"
   actions:
     - theme: brand
-      text: Markdown Examples
-      link: /markdown-examples
+      text: 快速开始
+      link: /quick-start
     - theme: alt
-      text: API Examples
-      link: /api-examples
+      text: 示例
+      link: /examples
 
 features:
   - title: Feature A

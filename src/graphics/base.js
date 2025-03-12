@@ -1,4 +1,4 @@
-import { nanoid } from "nanoid";
+import { uuid } from "../tools/common";
 
 export default class Base {
   /**
@@ -199,7 +199,11 @@ export default class Base {
    * @param {String} id 
    */
   setId(id){
-    this.id = id || nanoid();
+    this.id = id || uuid();
+  }
+
+  render(context){
+
   }
 
   /**

@@ -58,7 +58,7 @@ export default class CircleGeometry {
    * @param {Nubmer} radius
    */
   setRadius(radius) {
-    this.radius = radius;
+    this._radius = radius;
   }
 
   /**
@@ -66,7 +66,7 @@ export default class CircleGeometry {
    * @returns {Number}
    */
   getRadius() {
-    return this.radius;
+    return this._radius;
   }
 
   /**

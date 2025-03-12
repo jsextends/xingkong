@@ -4,6 +4,11 @@ import { defineConfig } from "vitepress";
 export default defineConfig({
   title: "星空",
   description: "一个canvas2d的渲染引擎库",
+  base: "/xingkong/",
+  head: [
+    ['script', {"src": "/xingkong/assets/xingkong.js"}],
+    ['link', {"href": "/xingkong/assets/style.css", rel: 'stylesheet'}]
+  ],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [

@@ -26,4 +26,8 @@ export default class CircleGraphics extends Base {
     setGeomertyWithVec2(vec2, radius){
         this.geom = CircleGeometry.fromVec2(vec2, radius)
     }
+
+    render(context){
+        console.log(context)
+    }
 }

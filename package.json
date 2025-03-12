@@ -21,10 +21,12 @@
   "dependencies": {
     "@jsextends/jevent": "^1.1.0",
     "@jsextends/matrixjs": "^1.0.0",
-    "nanoid": "^5.0.7",
     "rollup-plugin-uglify": "^6.0.4"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-terser": "^0.4.4",
     "@vuepress/bundler-vite": "^2.0.0-rc.20",
     "@vuepress/theme-default": "^2.0.0-rc.82",
     "rollup": "^4.18.1",
