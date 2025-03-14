@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>基础实例</title>
+    <link
+      href="https://cdn.bootcdn.net/ajax/libs/layui/2.9.21/css/layui.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./assets/style.css" />
+    <script src="./assets/xingkong.js"></script>
+  </head>
+  <body>
+    <div class="layui-container">
+      <div class="layui-row">
+        <h2 class="layui-text-center pt-8 layui-font-24">示例</h2>
+      </div>
+      <div class="layui-row">
+        <div class="layui-col-md9">
+          <canvas id="canvas"></canvas>
+        </div>
+        <div class="layui-col-md3"></div>
+      </div>
+    </div>
+    <script>
+      init();
+      function init() {
+        const stage = new xingkong.default("canvas");
+        const circleShape = new xingkong.CircleGraphics(20, 30, 10);
+        stage.addGraphics(circleShape);
+        stage.render();
+      }
+    </script>
+  </body>
+</html>

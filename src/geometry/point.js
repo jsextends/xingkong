@@ -14,7 +14,7 @@ export default class PointGeometry{
    */
   constructor(x, y) {
     this._point = new Vec2()
-    this.set(x, y);
+    this.setPoint(x, y);
   }
 
   static fromVec2(vec2){
@@ -23,12 +23,16 @@ export default class PointGeometry{
     return result
   }
 
+  getPoint(){
+    return this._point
+  }
+
   /**
    * 设置坐标值
    * @param {Number} x 
    * @param {Number} y 
    */
-  set(x, y){
+  setPoint(x, y){
     this._point.set(x, y)
   }
 
@@ -73,6 +77,6 @@ export default class PointGeometry{
    * @returns {String}
    */
   toString() {
-    return "[PointGeometry (x=" + this.x + " y=" + this.y + ")]";
+    return `[PointGeometry (${this.getPoint().toString()})]`;
   }
 }

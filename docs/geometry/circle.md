@@ -102,6 +102,35 @@ const r = circleGeo.getRadius(12);
  */
 ```
 
+### getArea
+
+```js
+/**
+ * 获取圆的面积
+ * @returns {Number}
+ */
+const vec2 = circleGeo.getArea();
+```
+
+### getPerimeter
+
+```js
+/**
+ * 获取圆的周长
+ * @returns {Number}
+ */
+const vec2 = circleGeo.getPerimeter();
+```
+
+### getExteriorRect
+
+```js
+/**
+ * 获取外接矩形
+ * @returns {CircleGeometry}
+ */
+```
+
 ### toString
 
 ```js

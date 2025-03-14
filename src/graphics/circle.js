@@ -30,4 +30,6 @@ export default class CircleGraphics extends Base {
     render(context){
         console.log(context)
     }
+
+    
 }

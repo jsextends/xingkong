@@ -1,0 +1,14 @@
+.layui-text-center {
+    text-align: center;
+}
+
+.pt-8{
+    padding-top: 8px;
+}
+
+#canvas {
+    width: 600px;
+    height: 600px;
+    margin: 16px auto;
+    border: 1px solid #cccccc;
+}
