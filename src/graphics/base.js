@@ -1,3 +1,4 @@
+import { DRAWSTATUS } from "../common/status";
 import { uuid } from "../tools/common";
 
 export default class Base {
@@ -137,7 +138,7 @@ export default class Base {
    * @property {CanvasRenderingContext2D.textRendering} textRendering 渲染文本时向渲染引擎提供应该如何优化的相关信息
    * @default "auto"
    */
-  textRendering  = "auto";
+  textRendering = "auto";
 
   /**
    * @property {String} wordSpacing 绘制文本时单词之间的间距
@@ -154,11 +155,13 @@ export default class Base {
    *  @property {String} text 图形的唯一标识
    */
   id = "";
-  
+
   /**
    * @property {CircleGeometry} 图形的几何形状
    */
-  geom = null
+  geom = null;
+
+  _drawStatus = DRAWSTATUS.NONE;
 
   /**
    * 图形类的基类, 抽象类，不能直接new
@@ -168,6 +171,7 @@ export default class Base {
   constructor(type, id) {
     this.type = type;
     this.setId(id);
+    this.setDrawStatus(DRAWSTATUS.PROCESS);
   }
 
   /**
@@ -185,32 +189,60 @@ export default class Base {
   getId() {
     return this.id;
   }
-  
+
   /**
    * 返回图形对应的几何形状
-   * @returns 
+   * @returns
    */
-  getGeomerty(){
+  getGeomerty() {
     return this.geom;
   }
 
   /**
    * 设置唯一表示
-   * @param {String} id 
+   * @param {String} id
    */
-  setId(id){
+  setId(id) {
     this.id = id || uuid();
   }
 
-  render(context){
+  getDrawStatus() {
+    return this._drawStatus;
+  }
 
+  setDrawStatus(status) {
+    this._drawStatus = status;
+  }
+
+  getVisible(){
+    return this.globalAlpha === 0
+  }
+
+  /**
+   * 渲染图形
+   * @param {CanvasRenderingContext2D} context
+   * @param {Boolean} isRedraw -是否强制渲染
+   */
+  render(context, isRedraw = false) {
+    if (this.getVisible()) {
+      if (isRedraw) {
+        this.setDrawStatus(DRAWSTATUS.PROCESS);
+        this._render(context);
+      } else {
+        if (this.getDrawStatus() === DRAWSTATUS.NONE) {
+          this.setDrawStatus(DRAWSTATUS.PROCESS);
+          this._render(context);
+        }
+      }
+      this.setDrawStatus(DRAWSTATUS.DONE);
+    }
   }
 
   /**
    * 转为字符串展示
    * @returns {string}
    */
-  toString(){
-    return `${this.getType()}Graphics geomerty=${this.getGeomerty().toString()}`
+  toString() {
+    return `${this.getType()}Graphics geomerty=${this.getGeomerty().toString()}`;
   }
 }

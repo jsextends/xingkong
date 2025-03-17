@@ -29,6 +29,16 @@ export default class Stage {
   _defaultContainer = null;
 
   /**
+   * @property {Number} _width 舞台的宽度
+   */
+  _width = 0;
+
+  /**
+   * @property {Number} _height 舞台的高度
+   */
+  _height = 0;
+
+  /**
    *
    * @param {string|HTMLCanvasElement} idOrElement
    * @param {String} defaultConainerName
@@ -45,8 +55,21 @@ export default class Stage {
       throw Error("unknown element");
     }
     this._context = this._element.getContext("2d");
+    this.setSize(this.getElement().clientWidth, this.getElement().clientHeight)
     this._defaultContainer = new Container(defaultConainerName);
     this.addContainer( this._defaultContainer);
+  }
+  setSize(width = 0, height = 0){
+    this._width = width;
+    this._height = height;
+    this.getElement().width = this._width;
+    this.getElement().height = this._height;
+    this.clearScreen();
+    this.redraw();
+  }
+
+  getSize(){
+    return [this._width, this._height]
   }
 
   getElement() {
@@ -106,11 +129,22 @@ export default class Stage {
     this.getContainer(name).clearGraphics();
   }
 
-  render() {
+  clearScreen(){
+    this.getContext().clearRect(0,0, this._width, this._height);
+  }
+
+  redraw(){
     for (let name of this._containerNames) {
-      this._containers[name].render(this.getContext());
+      this._containers[name].redraw(this.getContext(), true);
     }
   }
+
+  draw() {
+    for (let name of this._containerNames) {
+      this._containers[name].draw(this.getContext(), false);
+    }
+  }
+
 
   toString() {
     return "Stage";

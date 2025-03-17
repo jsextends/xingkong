@@ -89,6 +89,16 @@
       _defaultContainer = null;
 
       /**
+       * @property {Number} _width 舞台的宽度
+       */
+      _width = 0;
+
+      /**
+       * @property {Number} _height 舞台的高度
+       */
+      _height = 0;
+
+      /**
        *
        * @param {string|HTMLCanvasElement} idOrElement
        * @param {String} defaultConainerName
@@ -105,8 +115,20 @@
           throw Error("unknown element");
         }
         this._context = this._element.getContext("2d");
+        this.setSize(this.getElement().clientWidth, this.getElement().clientHeight);
         this._defaultContainer = new Container(defaultConainerName);
         this.addContainer( this._defaultContainer);
+      }
+      setSize(width = 0, height = 0){
+        this._width = width;
+        this._height = height;
+        this.getElement().width = this._width;
+        this.getElement().height = this._height;
+        this.clearScreen();
+      }
+
+      getSize(){
+        return [this._width, this._height]
       }
 
       getElement() {
@@ -139,6 +161,13 @@
         }
       }
 
+      removeContainer(name){
+        if (this._containerNames.includes(name)) {
+          this._containerNames = this._containerNames.filter(el => el !== name);
+          delete this._containerNames[name];
+        }
+      }
+
       setDefaultContainer(name) {
         if (this._containerNames.includes(name)) {
           this._defaultContainer = this._containers[name];
@@ -159,11 +188,16 @@
         this.getContainer(name).clearGraphics();
       }
 
+      clearScreen(){
+        this.getContext().clearRect(0,0, this._width, this._height);
+      }
+
       render() {
         for (let name of this._containerNames) {
           this._containers[name].render(this.getContext());
         }
       }
+
 
       toString() {
         return "Stage";
@@ -238,7 +272,7 @@
     		    return Math.abs(a - b) <= EPSILON * Math.max(1.0, Math.abs(a), Math.abs(b));
     		  }
 
-    		  var common = /*#__PURE__*/Object.freeze({
+    		  var Common = /*#__PURE__*/Object.freeze({
     		    __proto__: null,
     		    ARRAY_TYPE: ARRAY_TYPE,
     		    EPSILON: EPSILON,
@@ -1845,7 +1879,7 @@
     		  exports.Vec2 = Vec2;
     		  exports.Vec3 = Vec3;
     		  exports.Vec4 = Vec4;
-    		  exports.common = common;
+    		  exports.Common = Common;
 
     		})); 
     	} (matrix$1, matrix$1.exports));
@@ -1868,7 +1902,7 @@
        */
       constructor(x, y) {
         this._point = new matrixExports.Vec2();
-        this.set(x, y);
+        this.setPoint(x, y);
       }
 
       static fromVec2(vec2){
@@ -1877,12 +1911,16 @@
         return result
       }
 
+      getPoint(){
+        return this._point
+      }
+
       /**
        * 设置坐标值
        * @param {Number} x 
        * @param {Number} y 
        */
-      set(x, y){
+      setPoint(x, y){
         this._point.set(x, y);
       }
 
@@ -1927,102 +1965,7 @@
        * @returns {String}
        */
       toString() {
-        return "[PointGeometry (x=" + this.x + " y=" + this.y + ")]";
-      }
-    }
-
-    class CircleGeometry {
-      /**
-       * @property {Vec2} _center 圆心坐标
-       */
-      _center = null;
-
-      /**
-       * @property {Number} _radius 圆的半径
-       */
-      _radius = 0;
-
-      /**
-       * 创建一个圆形
-       * @param {Number} x 圆心x轴坐标
-       * @param {Number} y 圆心y轴坐标
-       * @param {Number} radius 圆的半径
-       */
-      constructor(x, y, radius) {
-        this._center = new matrixExports.Vec2();
-        this.setCenter(x, y);
-        this.setRadius(radius);
-      }
-
-      /**
-       * 从一个二维向量和半径创建一个几何圆
-       * @param {Vec2} Vec2 
-       * @param {Number} radius 
-       * @returns 
-       */
-      static fromVec2(Vec2, radius){
-        const result = new CircleGeometry(1,1,1);
-        result._center.copy(Vec2);
-        result.setRadius(radius);
-        return result;
-      }
-
-      /**
-       * 设置圆心坐标
-       * @param {Number} x 
-       * @param {Number} y 
-       */
-      setCenter(x, y){
-        this._center.set(x,y);
-      }
-
-      /**
-       * 设置圆心坐标使用二维向量
-       * @param {Vec2} vec2 
-       */
-      setCenterWithVec2(vec2){
-        this._center.copy(vec2);
-      }
-
-      /**
-       * 设置圆半径
-       * @param {Nubmer} radius
-       */
-      setRadius(radius) {
-        this._radius = radius;
-      }
-
-      /**
-       * 获取圆的半径
-       * @returns {Number}
-       */
-      getRadius() {
-        return this._radius;
-      }
-
-      /**
-       * 获取圆的圆心坐标
-       * @returns {Vec2}
-       */
-      getCenter() {
-        return this._center;
-      }
-
-      copy(circleGeometry){
-        this.setCenterWithVec2(circleGeometry.getCenter().clone());
-        this.setRadius(circleGeometry.getRadius());
-      }
-
-      clone(){
-        return CircleGeometry.fromVec2(this.getCenter().clone(), this.getRadius())
-      }
-
-      /**
-       * 转为字符串
-       * @returns {String}
-       */
-      toString() {
-        return `[CircleGeometry center (${this.getCenter().get("x")},${this.getCenter().get("y")}) radius ${this.radius}]`;
+        return `[PointGeometry (${this.getPoint().toString()})]`;
       }
     }
 
@@ -2188,6 +2131,202 @@
 
       toString() {
         return "[Rect width=" + this.width + " height=" + this.height + "]";
+      }
+    }
+
+    /**
+     * 点与其他几何形状的关系
+     * @readonly
+     * @enum {String}
+     * @property {String} POINTPOSITION.INNER - 在内部
+     * @property {String} POINTPOSITION.OUTER - 在外部
+     * @property {String} POINTPOSITION.BORDER - 在边界
+     */
+    const POINTPOSITION = {
+        INNER: "inner",  
+        OUTER: "outer",
+        BORDER: "border",
+    };
+
+    class CircleGeometry {
+      /**
+       * @property {Vec2} _center 圆心坐标
+       */
+      _center = null;
+
+      /**
+       * @property {Number} _radius 圆的半径
+       */
+      _radius = 0;
+
+      /**
+       * 创建一个圆形
+       * @param {Number} x 圆心x轴坐标
+       * @param {Number} y 圆心y轴坐标
+       * @param {Number} radius 圆的半径
+       */
+      constructor(x, y, radius) {
+        this._center = new matrixExports.Vec2();
+        this.setCenter(x, y);
+        this.setRadius(radius);
+      }
+
+      /**
+       * 从一个二维向量和半径创建一个几何圆
+       * @param {Vec2} Vec2
+       * @param {Number} radius
+       * @returns
+       */
+      static fromVec2(Vec2, radius) {
+        const result = new CircleGeometry(1, 1, 1);
+        result._center.copy(Vec2);
+        result.setRadius(radius);
+        return result;
+      }
+
+      /**
+       * 设置圆心坐标
+       * @param {Number} x
+       * @param {Number} y
+       */
+      setCenter(x, y) {
+        this._center.set(x, y);
+      }
+
+      /**
+       * 设置圆心坐标使用二维向量
+       * @param {Vec2} vec2
+       */
+      setCenterWithVec2(vec2) {
+        this._center.copy(vec2);
+      }
+
+      /**
+       * 设置圆半径
+       * @param {Nubmer} radius
+       */
+      setRadius(radius) {
+        this._radius = radius;
+      }
+
+      /**
+       * 获取圆的半径
+       * @returns {Number}
+       */
+      getRadius() {
+        return this._radius;
+      }
+
+      /**
+       * 获取圆心坐标
+       * @returns {Vec2}
+       */
+      getCenter() {
+        return this._center;
+      }
+
+      /**
+       * 获取圆的直接
+       * @returns {Number}
+       */
+      getDiameter() {
+        return 2 * this.getRadius();
+      }
+
+      /**
+       * 获取面积
+       * @returns {Number}
+       */
+      getArea() {
+        return Math.PI * this.getRadius() * this.getRadius();
+      }
+
+      /**
+       * 获取周长
+       * @returns {Number}
+       */
+      getPerimeter() {
+        return 2 * Math.PI * this.getRadius();
+      }
+
+      /**
+       * 获取外接矩形
+       * @returns {RectGeometry}
+       */
+      getExteriorRect() {
+        const w = this.getDiameter();
+        return RectGeometry.fromPointVec2(
+          this.getCenter().subtract(
+            matrixExports.Vec2.fromValues(this.getRadius(), -this.getRadius())
+          ),
+          w,
+          w
+        );
+      }
+
+      /**
+       * 判断点与圆的关系
+       * @param {PointGeometry} point
+       * @param {Boolean} isabsolute 是绝对相等还是相对相等
+       * @returns {POINTPOSITION}
+       * }
+       */
+      getPointPosition(point, isAbsolute = true) {
+        let distance = this.getCenter().squaredDistance(point.getPoint());
+        if (!isAbsolute) {
+          distance = matrixExports.Common.equals(distance, 0);
+        }
+        if (distance > 0) {
+          return POINTPOSITION.OUTER;
+        } else if (distance < 0) {
+          return POINTPOSITION.INNER;
+        } else {
+          return POINTPOSITION.BORDER;
+        }
+      }
+
+      /**
+       * 判断直线与圆的位置关系
+       * @param {LineGeometry} line
+       * @param {Boolean} isabsolute 是绝对相等还是相对相等
+       * @returns {POINTPOSITION}
+       */
+      getLinePosition(line, isAbsolute = true) {
+        const normal = line.getNormal();
+        const distance =
+          (normal[0] * this.getCenter().get("x") +
+            normal[1] * this.getCenter().get("y") +
+            normal[2]) /
+          Math.sqrt(normal[0] * normal[0] + normal[1] * normal[1]);
+        if (!isAbsolute) {
+          distance = matrixExports.Common.equals(distance, 0);
+        }
+        if (distance > 0) {
+          return POINTPOSITION.OUTER;
+        } else if (distance < 0) {
+          return POINTPOSITION.INNER;
+        } else {
+          return POINTPOSITION.BORDER;
+        }
+      }
+
+      copy(circleGeometry) {
+        this.setCenterWithVec2(circleGeometry.getCenter().clone());
+        this.setRadius(circleGeometry.getRadius());
+      }
+
+      clone() {
+        return CircleGeometry.fromVec2(this.getCenter().clone(), this.getRadius());
+      }
+
+      /**
+       * 转为字符串
+       * @returns {String}
+       */
+      toString() {
+        return `[CircleGeometry center (${this.getCenter().get(
+      "x"
+    )},${this.getCenter().get("y")}) radius ${this.radius}]`;
       }
     }
 
@@ -2854,6 +2993,8 @@
         render(context){
             console.log(context);
         }
+
+        
     }
 
     exports.CircleGeometry = CircleGeometry;

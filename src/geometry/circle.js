@@ -1,6 +1,6 @@
 import { Vec2, Common } from "@jsextends/matrixjs";
 import RectGeometry from "./rect";
-import { POINTPOSITION } from "../common/constants";
+import { POINTPOSITION } from "../common/relation";
 import LineGeometry from "./line";
 
 export default class CircleGeometry {

@@ -1,9 +1,23 @@
+import { DRAWSTATUS } from "../common/status";
+
 export default class Container{
     _sort = 1;
 
+    /**
+     * @property {String} _name 容器的名称
+     */
     _name = ""
 
+    /**
+     * @property {Base[]} _graphicsList 容器中图形集合 
+     */
     _graphicsList = [];
+
+    /**
+     * @property {DRAWSTATUS} _drawStatus 容器的绘制状态
+     */
+    _drawStatus = DRAWSTATUS.NONE
+
     /**
      * 
      * @param {String} name 
@@ -28,7 +42,14 @@ export default class Container{
             })  
         } else {
             this._graphicsList.push(graphics)
+            if(this.getDrawStatus() !== DRAWSTATUS.DONE){
+                this.setDrawStatus(DRAWSTATUS.PROCESS);
+            }
         }
+    }
+
+    getGraphics(){
+        return this._graphicsList;
     }
 
     removeGraphics(graphics){
@@ -39,13 +60,34 @@ export default class Container{
     }
 
     clearGraphics(){
+        this.setDrawStatus(DRAWSTATUS.NONE);
         this._graphicsList = [];
     }
 
-    render(context){
-        this._graphicsList.forEach(el => {
-            el.render(context)
-        })
+    /**
+     * 绘制图形
+     * @param {CanvasRenderingContext2D} context -绘图上下文
+     * @param {Boolean} isRedraw - 是否重新绘制
+     */
+    render(context, isRedraw = false){
+        if(isRedraw){
+            this.getGraphics().forEach(el => {
+                el.render(context, true)
+            })
+        } else {
+            if(this.getDrawStatus() === DRAWSTATUS.PROCESS){
+                this.getGraphics().filter(el => el.getDrawStatus() === DRAWSTATUS.NONE).map(el => el.render(context, false))
+            }
+        }
+        this.setDrawStatus(DRAWSTATUS.DONE)
+    }
+
+    setDrawStatus(status){
+        this._drawStatus = status;
+    }
+
+    getDrawStatus(){
+        return this._drawStatus;
     }
 
     toString() {

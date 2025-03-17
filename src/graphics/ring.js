@@ -2,7 +2,7 @@
 import RingGeometry from "../geometry/ring";
 import Base from "./base";
 
-export default class Ring extends Base {
+export default class RingGraphics extends Base {
 
     /**
      * @property {RingGeometry} geom 图形的几何对象

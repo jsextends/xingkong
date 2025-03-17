@@ -20,16 +20,78 @@
         <div class="layui-col-md9">
           <canvas id="canvas"></canvas>
         </div>
-        <div class="layui-col-md3"></div>
+        <div class="layui-col-md3">
+          <button
+            class="layui-btn layui-btn-primary layui-border-blue"
+            onclick="addCircle()"
+          >
+            添加圆
+          </button>
+          <button
+            class="layui-btn layui-btn-primary layui-border-blue"
+            onclick="addRect()"
+          >
+            添加矩形
+          </button>
+          <button
+            class="layui-btn layui-btn-primary layui-border-blue"
+            onclick="addLine()"
+          >
+            添加线段
+          </button>
+          <button
+            class="layui-btn layui-btn-primary layui-border-blue"
+            onclick="addSector()"
+          >
+            添加扇形
+          </button>
+          <button
+            class="layui-btn layui-btn-primary layui-border-blue"
+            onclick="addRing()"
+          >
+            添加圆环
+          </button>
+          <button
+            class="layui-btn layui-btn-primary layui-border-blue"
+            onclick="addEllipse()"
+          >
+            添加椭圆
+          </button>
+        </div>
       </div>
     </div>
     <script>
+      let stage;
       init();
+
       function init() {
-        const stage = new xingkong.default("canvas");
+        stage = new xingkong.default("canvas");
+      }
+
+      function addCircle() {
         const circleShape = new xingkong.CircleGraphics(20, 30, 10);
         stage.addGraphics(circleShape);
-        stage.render();
+      }
+
+      function addRect() {
+        const rectShape = new xingkong.RectGraphics(80, 30, 30, 20);
+        stage.addGraphics(rectShape);
+      }
+      function addLine() {
+        const rectShape = new xingkong.LineGraphics(80, 30, 30, 20);
+        stage.addGraphics(rectShape);
+      }
+      function addSector() {
+        const rectShape = new xingkong.LineGraphics(80, 30, 30, 20);
+        stage.addGraphics(rectShape);
+      }
+      function addRing() {
+        const rectShape = new xingkong.LineGraphics(80, 30, 30, 20);
+        stage.addGraphics(rectShape);
+      }
+      function addEllipse() {
+        const rectShape = new xingkong.EllipseGraphics(80, 30, 30, 20);
+        stage.addGraphics(rectShape);
       }
     </script>
   </body>
