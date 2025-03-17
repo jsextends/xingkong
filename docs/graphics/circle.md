@@ -1,8 +1,3 @@
----
-title: 几何图形_圆形
-outline: deep
----
-
 # CircleGraphics
 
 > **类** 几何图形圆类 继承于几何图形基础类[base](./base.md)

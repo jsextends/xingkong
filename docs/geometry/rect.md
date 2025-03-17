@@ -1,8 +1,3 @@
----
-title: 几何形状_矩形
-outline: deep
----
-
 # RectGeometry
 
 > **类** 几何形状矩形

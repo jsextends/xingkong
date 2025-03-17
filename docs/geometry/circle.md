@@ -1,8 +1,3 @@
----
-title: 几何形状_圆
-outline: deep
----
-
 # CircleGeometry
 
 > **类** 几何形状圆

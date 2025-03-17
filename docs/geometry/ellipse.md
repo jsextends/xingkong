@@ -1,8 +1,3 @@
----
-title: 几何形状_椭圆
-outline: deep
----
-
 # EllipseGeometry
 
 > **类** 几何形状椭圆

@@ -1,8 +1,3 @@
----
-title: 几何形状_圆环
-outline: deep
----
-
 # RingGeometry
 
 > **类** 几何形状圆环

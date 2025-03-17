@@ -1,6 +1,7 @@
 import { Vec2, Common } from "@jsextends/matrixjs";
 import RectGeometry from "./rect";
 import { POINTPOSITION } from "../common/constants";
+import LineGeometry from "./line";
 
 export default class CircleGeometry {
   /**
@@ -141,13 +142,28 @@ export default class CircleGeometry {
 
   /**
    * 判断直线与圆的位置关系
-   * @param {LineGeometry} line 
-   * @returns {LINEPOSITION}
+   * @param {LineGeometry} line
+   * @param {Boolean} isabsolute 是绝对相等还是相对相等
+   * @returns {POINTPOSITION}
    */
-  getLinePosition(line){
-
+  getLinePosition(line, isAbsolute = true) {
+    const normal = line.getNormal();
+    const distance =
+      (normal[0] * this.getCenter().get("x") +
+        normal[1] * this.getCenter().get("y") +
+        normal[2]) /
+      Math.sqrt(normal[0] * normal[0] + normal[1] * normal[1]);
+    if (!isAbsolute) {
+      distance = Common.equals(distance, 0);
+    }
+    if (distance > 0) {
+      return POINTPOSITION.OUTER;
+    } else if (distance < 0) {
+      return POINTPOSITION.INNER;
+    } else {
+      return POINTPOSITION.BORDER;
+    }
   }
-  
 
   copy(circleGeometry) {
     this.setCenterWithVec2(circleGeometry.getCenter().clone());

@@ -1,8 +1,3 @@
----
-title: 几何形状_点
-outline: deep
----
-
 # PointGeometry
 
 > **类** 几何形状点

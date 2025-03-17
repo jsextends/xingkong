@@ -1,8 +1,3 @@
----
-title: 几何形状_扇形
-outline: deep
----
-
 # SectorGeometry
 
 > **类** 几何形状扇形

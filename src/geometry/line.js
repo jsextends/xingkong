@@ -102,7 +102,26 @@ export default class LineGeometry {
           ).determinant() / determinant;
       }
     }
-    return result
+    return result;
+  }
+
+  /**
+   * 获取直线方程的一般式
+   * @returns {Number[]}
+   */
+  getNormal() {
+    const result = [];
+    result.push(this.getStart().get("y") - this.getEnd().get("y"));
+    result.push(this.getStart().get("x") - this.getEnd().get("x"));
+    result.push(
+      Mat2.fromValues(
+        this.getStart().get("x"),
+        this.getStart().get("y"),
+        this.getEnd().get("x"),
+        this.getEnd().get("y")
+      ).determinant()
+    );
+    return result;
   }
 
   /**
