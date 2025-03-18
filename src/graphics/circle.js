@@ -2,6 +2,8 @@ import { Vec2 } from "@jsextends/matrixjs";
 import CircleGeometry from "../geometry/circle";
 import Base from "./base";
 import { DRAWSTATUS } from "../common/status";
+import RectGeometry from "../geometry/rect";
+import { RECTRELATION } from "../common/relation";
 
 export default class CircleGraphics extends Base {
   /**
@@ -45,8 +47,22 @@ export default class CircleGraphics extends Base {
    */
   setGeomerty(circleGeo) {
     this.geom = new CircleGeometry(circleGeo);
-    this.setDrawStatus(DRAWSTATUS.NONE)
+    this.setDrawStatus(DRAWSTATUS.NONE);
   }
 
-  _render(){}
+  getVisible(context) {
+    return (
+      super.getVisible() &&
+      this.getGeomerty().getRectRelation(
+        RectGeometry.fromValues(
+          0,
+          0,
+          context.canvas.width,
+          context.canvas.height
+        )
+      ) !== RECTRELATION.SEPARATION
+    );
+  }
+
+  _render() {}
 }

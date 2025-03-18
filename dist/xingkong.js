@@ -2138,11 +2138,11 @@
      * 点与其他几何形状的关系
      * @readonly
      * @enum {String}
-     * @property {String} POINTPOSITION.INNER - 在内部
-     * @property {String} POINTPOSITION.OUTER - 在外部
-     * @property {String} POINTPOSITION.BORDER - 在边界
+     * @property {String} POINTRELATION.INNER - 在内部
+     * @property {String} POINTRELATION.OUTER - 在外部
+     * @property {String} POINTRELATION.BORDER - 在边界
      */
-    const POINTPOSITION = {
+    const POINTRELATION = {
         INNER: "inner",  
         OUTER: "outer",
         BORDER: "border",
@@ -2268,7 +2268,7 @@
        * 判断点与圆的关系
        * @param {PointGeometry} point
        * @param {Boolean} isabsolute 是绝对相等还是相对相等
-       * @returns {POINTPOSITION}
+       * @returns {POINTRELATION}
        * }
        */
       getPointPosition(point, isAbsolute = true) {
@@ -2277,11 +2277,11 @@
           distance = matrixExports.Common.equals(distance, 0);
         }
         if (distance > 0) {
-          return POINTPOSITION.OUTER;
+          return POINTRELATION.OUTER;
         } else if (distance < 0) {
-          return POINTPOSITION.INNER;
+          return POINTRELATION.INNER;
         } else {
-          return POINTPOSITION.BORDER;
+          return POINTRELATION.BORDER;
         }
       }
 
@@ -2289,7 +2289,7 @@
        * 判断直线与圆的位置关系
        * @param {LineGeometry} line
        * @param {Boolean} isabsolute 是绝对相等还是相对相等
-       * @returns {POINTPOSITION}
+       * @returns {POINTRELATION}
        */
       getLinePosition(line, isAbsolute = true) {
         const normal = line.getNormal();
@@ -2302,11 +2302,11 @@
           distance = matrixExports.Common.equals(distance, 0);
         }
         if (distance > 0) {
-          return POINTPOSITION.OUTER;
+          return POINTRELATION.OUTER;
         } else if (distance < 0) {
-          return POINTPOSITION.INNER;
+          return POINTRELATION.INNER;
         } else {
-          return POINTPOSITION.BORDER;
+          return POINTRELATION.BORDER;
         }
       }
 

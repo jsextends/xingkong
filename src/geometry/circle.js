@@ -1,6 +1,6 @@
 import { Vec2, Common } from "@jsextends/matrixjs";
 import RectGeometry from "./rect";
-import { POINTPOSITION } from "../common/relation";
+import { POINTRELATION } from "../common/relation";
 import LineGeometry from "./line";
 
 export default class CircleGeometry {
@@ -123,20 +123,20 @@ export default class CircleGeometry {
    * 判断点与圆的关系
    * @param {PointGeometry} point
    * @param {Boolean} isabsolute 是绝对相等还是相对相等
-   * @returns {POINTPOSITION}
+   * @returns {POINTRELATION}
    * }
    */
-  getPointPosition(point, isAbsolute = true) {
+  getPointRelation(point, isAbsolute = true) {
     let distance = this.getCenter().squaredDistance(point.getPoint());
     if (!isAbsolute) {
       distance = Common.equals(distance, 0);
     }
     if (distance > 0) {
-      return POINTPOSITION.OUTER;
+      return POINTRELATION.OUTER;
     } else if (distance < 0) {
-      return POINTPOSITION.INNER;
+      return POINTRELATION.INNER;
     } else {
-      return POINTPOSITION.BORDER;
+      return POINTRELATION.BORDER;
     }
   }
 
@@ -144,9 +144,9 @@ export default class CircleGeometry {
    * 判断直线与圆的位置关系
    * @param {LineGeometry} line
    * @param {Boolean} isabsolute 是绝对相等还是相对相等
-   * @returns {POINTPOSITION}
+   * @returns {POINTRELATION}
    */
-  getLinePosition(line, isAbsolute = true) {
+  getLineRelation(line, isAbsolute = true) {
     const normal = line.getNormal();
     const distance =
       (normal[0] * this.getCenter().get("x") +
@@ -157,12 +157,20 @@ export default class CircleGeometry {
       distance = Common.equals(distance, 0);
     }
     if (distance > 0) {
-      return POINTPOSITION.OUTER;
+      return POINTRELATION.OUTER;
     } else if (distance < 0) {
-      return POINTPOSITION.INNER;
+      return POINTRELATION.INNER;
     } else {
-      return POINTPOSITION.BORDER;
+      return POINTRELATION.BORDER;
     }
+  }
+  /**
+   * 判断矩形与圆的位置关系
+   * @param {RectGeometry} rect 
+   * @returns {RECTRELATION}
+   */
+  getRectRelation(rect){
+    return this.getExteriorRect().getRectRelation(rect)
   }
 
   copy(circleGeometry) {

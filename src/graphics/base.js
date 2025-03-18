@@ -224,7 +224,7 @@ export default class Base {
    * @param {Boolean} isRedraw -是否强制渲染
    */
   render(context, isRedraw = false) {
-    if (this.getVisible()) {
+    if (this.getVisible(context)) {
       if (isRedraw) {
         this.setDrawStatus(DRAWSTATUS.PROCESS);
         this._render(context);

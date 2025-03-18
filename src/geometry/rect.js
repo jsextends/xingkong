@@ -1,4 +1,5 @@
 import { Vec2 } from "@jsextends/matrixjs";
+import { RECTRELATION } from "../common/relation";
 
 export default class RectGeometry {
   /**
@@ -45,24 +46,35 @@ export default class RectGeometry {
     this.setSize(width, height);
   }
 
-  static fromPointsVec2(leftTopPoint, rightBottomPoint){
-    const w = Math.abs(rightBottomPoint.get("x") - leftTopPoint.get("x"))
-    const h = Math.abs(rightBottomPoint.get("y") - leftTopPoint.get("y"))
-    return RectGeometry.fromPointVec2(leftTopPoint, w, h)
+  static fromPointsVec2(leftTopPoint, rightBottomPoint) {
+    const w = Math.abs(rightBottomPoint.get("x") - leftTopPoint.get("x"));
+    const h = Math.abs(rightBottomPoint.get("y") - leftTopPoint.get("y"));
+    return RectGeometry.fromPointVec2(leftTopPoint, w, h);
   }
 
-  static fromPointVec2(leftTopPoint, width, height){
-    const result = new RectGeometry(leftTopPoint.get("x"), leftTopPoint.get("y"), width, height);
-    return result
+  static fromPointVec2(leftTopPoint, width, height) {
+    const result = new RectGeometry(
+      leftTopPoint.get("x"),
+      leftTopPoint.get("y"),
+      width,
+      height
+    );
+    return result;
   }
 
   setSize(width, height) {
     this._width = width;
     this._height = height;
-    this._lbPoint = this._ltPoint.clone().add(Vec2.fromValues(0, -this._height));
+    this._lbPoint = this._ltPoint
+      .clone()
+      .add(Vec2.fromValues(0, -this._height));
     this._rtPoint = this._ltPoint.clone().add(Vec2.fromValues(this._width, 0));
-    this._rbPoint = this._ltPoint.clone().add(Vec2.fromValues(this._width, -this._height));
-    this._centerPoint = this._ltPoint.clone().add(Vec2.fromValues(this._width / 2, -this._height / 2));
+    this._rbPoint = this._ltPoint
+      .clone()
+      .add(Vec2.fromValues(this._width, -this._height));
+    this._centerPoint = this._ltPoint
+      .clone()
+      .add(Vec2.fromValues(this._width / 2, -this._height / 2));
   }
 
   /**
@@ -72,12 +84,16 @@ export default class RectGeometry {
   getWidth() {
     return this._width;
   }
-  
-  setWidth(width){
+
+  setWidth(width) {
     this._width = width;
     this._rtPoint = this._ltPoint.clone().add(Vec2.fromValues(this._width, 0));
-    this._rbPoint = this._ltPoint.clone().add(Vec2.fromValues(this._width, -this._height));
-    this._centerPoint = this._ltPoint.clone().add(Vec2.fromValues(this._width / 2, -this._height / 2));
+    this._rbPoint = this._ltPoint
+      .clone()
+      .add(Vec2.fromValues(this._width, -this._height));
+    this._centerPoint = this._ltPoint
+      .clone()
+      .add(Vec2.fromValues(this._width / 2, -this._height / 2));
   }
 
   /**
@@ -88,11 +104,17 @@ export default class RectGeometry {
     return this._height;
   }
 
-  setHeight(height){
+  setHeight(height) {
     this._height = height;
-    this._lbPoint = this._ltPoint.clone().add(Vec2.fromValues(0, -this._height));
-    this._rbPoint = this._ltPoint.clone().add(Vec2.fromValues(this._width, -this._height));
-    this._centerPoint = this._ltPoint.clone().add(Vec2.fromValues(this._width / 2, -this._height / 2));
+    this._lbPoint = this._ltPoint
+      .clone()
+      .add(Vec2.fromValues(0, -this._height));
+    this._rbPoint = this._ltPoint
+      .clone()
+      .add(Vec2.fromValues(this._width, -this._height));
+    this._centerPoint = this._ltPoint
+      .clone()
+      .add(Vec2.fromValues(this._width / 2, -this._height / 2));
   }
 
   /**
@@ -135,12 +157,37 @@ export default class RectGeometry {
     return this._centerPoint;
   }
 
-  getArea(){
+  getArea() {
     return this.getHeight() * this.getWidth();
   }
 
-  getPerimeter(){
-    return 2 * (this.getWidth() + this.getHeight())
+  getPerimeter() {
+    return 2 * (this.getWidth() + this.getHeight());
+  }
+
+  /**
+   * 判断2个矩形的位置关系
+   * @param {RectGeometry} rect 
+   * @returns {RECTRELATION}
+   */
+  getRectRelation(rect) {
+    const x1 = this.getLeftTopPoint().get("x");
+    const y1 = this.getLeftTopPoint().get("y");
+    const x2 = this.getRightBottomPoint().get("x");
+    const y2 = this.getRightBottomPoint().get("y");
+    const a1 = rect.getLeftTopPoint().get("x");
+    const b1 = rect.getLeftTopPoint().get("y");
+    const a2 = rect.getRightBottomPoint().get("x");
+    const b2 = rect.getRightBottomPoint().get("y");
+    if (
+      x2 <= a1 || a2 <= x1 || y2 <= b1 || b2 <= y1
+    ) {
+      return RECTRELATION.SEPARATION
+    } else if(Math.max(x1, a1) < Math.min(x2,a2) && Math.max(y1, b1) < Math.min(y2,b2)){
+      return RECTRELATION.INTERSECT
+    } else if((x1 <= a1 && a2 <= x2 && y1 <= b1 && b2 <= y2) || (a1 <= x1 && x2 <= a2 && b1 <= y1 && y2 <= b2)){
+      return RECTRELATION.CONTAIN
+    }
   }
 
   /**
@@ -148,7 +195,7 @@ export default class RectGeometry {
    * @param {RectGeometry} rect
    */
   copy(rect) {
-    this._ltPoint.copy(rect.getLeftTopPoint())
+    this._ltPoint.copy(rect.getLeftTopPoint());
     this.setSize(rect.getWidth(), rect.getHeight());
   }
 
@@ -157,7 +204,10 @@ export default class RectGeometry {
    * @returns {RectGeometry}
    */
   clone() {
-    return RectGeometry.fromPointsVec2(this.getLeftTopPoint().clone(), this.getRightBottomPoint().clone())
+    return RectGeometry.fromPointsVec2(
+      this.getLeftTopPoint().clone(),
+      this.getRightBottomPoint().clone()
+    );
   }
 
   toString() {
