@@ -4,12 +4,38 @@
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.xingkong = {}));
 })(this, (function (exports) { 'use strict';
 
+    /**
+     * 点与其他几何形状的关系
+     * @readonly
+     * @enum {String}
+     * @property {String} DRAWSTATUS.NONE - 未绘制
+     * @property {String} DRAWSTATUS.PROCESS - 绘制中
+     * @property {String} DRAWSTATUS.DONE - 已会制
+     */
+    const DRAWSTATUS = {
+        NONE: "none",
+        PROCESS: "process",
+        DONE: "done"
+    };
+
     class Container{
         _sort = 1;
 
+        /**
+         * @property {String} _name 容器的名称
+         */
         _name = ""
 
+        /**
+         * @property {Base[]} _graphicsList 容器中图形集合 
+         */
         _graphicsList = [];
+
+        /**
+         * @property {DRAWSTATUS} _drawStatus 容器的绘制状态
+         */
+        _drawStatus = DRAWSTATUS.NONE
+
         /**
          * 
          * @param {String} name 
@@ -34,7 +60,14 @@
                 });  
             } else {
                 this._graphicsList.push(graphics);
+                if(this.getDrawStatus() !== DRAWSTATUS.DONE){
+                    this.setDrawStatus(DRAWSTATUS.PROCESS);
+                }
             }
+        }
+
+        getGraphics(){
+            return this._graphicsList;
         }
 
         removeGraphics(graphics){
@@ -45,13 +78,34 @@
         }
 
         clearGraphics(){
+            this.setDrawStatus(DRAWSTATUS.NONE);
             this._graphicsList = [];
         }
 
-        render(context){
-            this._graphicsList.forEach(el => {
-                el.render(context);
-            });
+        /**
+         * 绘制图形
+         * @param {CanvasRenderingContext2D} context -绘图上下文
+         * @param {Boolean} isRedraw - 是否重新绘制
+         */
+        render(context, isRedraw = false){
+            if(isRedraw){
+                this.getGraphics().forEach(el => {
+                    el.render(context, true);
+                });
+            } else {
+                if(this.getDrawStatus() === DRAWSTATUS.PROCESS){
+                    this.getGraphics().filter(el => el.getDrawStatus() === DRAWSTATUS.NONE).map(el => el.render(context, false));
+                }
+            }
+            this.setDrawStatus(DRAWSTATUS.DONE);
+        }
+
+        setDrawStatus(status){
+            this._drawStatus = status;
+        }
+
+        getDrawStatus(){
+            return this._drawStatus;
         }
 
         toString() {
@@ -125,6 +179,7 @@
         this.getElement().width = this._width;
         this.getElement().height = this._height;
         this.clearScreen();
+        this.redraw();
       }
 
       getSize(){
@@ -192,9 +247,15 @@
         this.getContext().clearRect(0,0, this._width, this._height);
       }
 
-      render() {
+      redraw(){
         for (let name of this._containerNames) {
-          this._containers[name].render(this.getContext());
+          this._containers[name].render(this.getContext(), true);
+        }
+      }
+
+      draw() {
+        for (let name of this._containerNames) {
+          this._containers[name].render(this.getContext(), false);
         }
       }
 
@@ -1969,6 +2030,34 @@
       }
     }
 
+    /**
+     * 点与其他几何形状的关系
+     * @readonly
+     * @enum {String}
+     * @property {String} POINTRELATION.INNER - 在内部
+     * @property {String} POINTRELATION.OUTER - 在外部
+     * @property {String} POINTRELATION.BORDER - 在边界
+     */
+    const POINTRELATION = {
+        INNER: "inner",  
+        OUTER: "outer",
+        BORDER: "border",
+    };
+
+    /**
+     * 矩形与其他几何形状的关系
+     * @readonly
+     * @enum {String}
+     * @property {String} RECTRELATION.INTERSECT - 相交
+     * @property {String} RECTRELATION.SEPARATION - 相离
+     * @property {String} RECTRELATION.CONTAIN - 包含
+     */
+    const RECTRELATION = {
+        INTERSECT: "intersect",
+        SEPARATION: "separation",
+        CONTAIN: "contain"
+    };
+
     class RectGeometry {
       /**
        * @property {Vec2} _ltPoint 矩形的左上角点
@@ -2014,24 +2103,33 @@
         this.setSize(width, height);
       }
 
-      static fromPointsVec2(leftTopPoint, rightBottomPoint){
+      static fromPointsVec2(leftTopPoint, rightBottomPoint) {
         const w = Math.abs(rightBottomPoint.get("x") - leftTopPoint.get("x"));
         const h = Math.abs(rightBottomPoint.get("y") - leftTopPoint.get("y"));
-        return RectGeometry.fromPointVec2(leftTopPoint, w, h)
+        return RectGeometry.fromPointVec2(leftTopPoint, w, h);
       }
 
-      static fromPointVec2(leftTopPoint, width, height){
-        const result = new RectGeometry(leftTopPoint.get("x"), leftTopPoint.get("y"), width, height);
-        return result
+      static fromPointVec2(leftTopPoint, width, height) {
+        const result = new RectGeometry(
+          leftTopPoint.get("x"),
+          leftTopPoint.get("y"),
+          width,
+          height
+        );
+        return result;
       }
 
       setSize(width, height) {
         this._width = width;
         this._height = height;
-        this._lbPoint = this._ltPoint.clone().add(matrixExports.Vec2.fromValues(0, -this._height));
-        this._rtPoint = this._ltPoint.clone().add(matrixExports.Vec2.fromValues(this._width, 0));
-        this._rbPoint = this._ltPoint.clone().add(matrixExports.Vec2.fromValues(this._width, -this._height));
-        this._centerPoint = this._ltPoint.clone().add(matrixExports.Vec2.fromValues(this._width / 2, -this._height / 2));
+        this._lbPoint = this._ltPoint.clone();
+        this._lbPoint.add(matrixExports.Vec2.fromValues(0, -this._height));
+        this._rtPoint = this._ltPoint.clone();
+        this._rtPoint.add(matrixExports.Vec2.fromValues(this._width, 0));
+        this._rbPoint = this._ltPoint.clone();
+        this._rbPoint.add(matrixExports.Vec2.fromValues(this._width, -this._height));
+        this._centerPoint = this._ltPoint.clone();
+        this._centerPoint.add(matrixExports.Vec2.fromValues(this._width / 2, -this._height / 2));
       }
 
       /**
@@ -2041,12 +2139,16 @@
       getWidth() {
         return this._width;
       }
-      
-      setWidth(width){
+
+      setWidth(width) {
         this._width = width;
         this._rtPoint = this._ltPoint.clone().add(matrixExports.Vec2.fromValues(this._width, 0));
-        this._rbPoint = this._ltPoint.clone().add(matrixExports.Vec2.fromValues(this._width, -this._height));
-        this._centerPoint = this._ltPoint.clone().add(matrixExports.Vec2.fromValues(this._width / 2, -this._height / 2));
+        this._rbPoint = this._ltPoint
+          .clone()
+          .add(matrixExports.Vec2.fromValues(this._width, -this._height));
+        this._centerPoint = this._ltPoint
+          .clone()
+          .add(matrixExports.Vec2.fromValues(this._width / 2, -this._height / 2));
       }
 
       /**
@@ -2057,11 +2159,17 @@
         return this._height;
       }
 
-      setHeight(height){
+      setHeight(height) {
         this._height = height;
-        this._lbPoint = this._ltPoint.clone().add(matrixExports.Vec2.fromValues(0, -this._height));
-        this._rbPoint = this._ltPoint.clone().add(matrixExports.Vec2.fromValues(this._width, -this._height));
-        this._centerPoint = this._ltPoint.clone().add(matrixExports.Vec2.fromValues(this._width / 2, -this._height / 2));
+        this._lbPoint = this._ltPoint
+          .clone()
+          .add(matrixExports.Vec2.fromValues(0, -this._height));
+        this._rbPoint = this._ltPoint
+          .clone()
+          .add(matrixExports.Vec2.fromValues(this._width, -this._height));
+        this._centerPoint = this._ltPoint
+          .clone()
+          .add(matrixExports.Vec2.fromValues(this._width / 2, -this._height / 2));
       }
 
       /**
@@ -2104,12 +2212,41 @@
         return this._centerPoint;
       }
 
-      getArea(){
+      getArea() {
         return this.getHeight() * this.getWidth();
       }
 
-      getPerimeter(){
-        return 2 * (this.getWidth() + this.getHeight())
+      getPerimeter() {
+        return 2 * (this.getWidth() + this.getHeight());
+      }
+
+      /**
+       * 判断2个矩形的位置关系
+       * @param {RectGeometry} rect
+       * @returns {RECTRELATION}
+       */
+      getRectRelation(rect) {
+        const x1 = this.getLeftTopPoint().get("x");
+        const y1 = this.getLeftTopPoint().get("y");
+        const x2 = this.getRightBottomPoint().get("x");
+        const y2 = this.getRightBottomPoint().get("y");
+        const a1 = rect.getLeftTopPoint().get("x");
+        const b1 = rect.getLeftTopPoint().get("y");
+        const a2 = rect.getRightBottomPoint().get("x");
+        const b2 = rect.getRightBottomPoint().get("y");
+        if (x2 <= a1 || a2 <= x1 || y2 <= b1 || b2 <= y1) {
+          return RECTRELATION.SEPARATION;
+        } else if (
+          Math.max(x1, a1) < Math.min(x2, a2) &&
+          Math.max(y1, b1) < Math.min(y2, b2)
+        ) {
+          return RECTRELATION.INTERSECT;
+        } else if (
+          (x1 <= a1 && a2 <= x2 && y1 <= b1 && b2 <= y2) ||
+          (a1 <= x1 && x2 <= a2 && b1 <= y1 && y2 <= b2)
+        ) {
+          return RECTRELATION.CONTAIN;
+        }
       }
 
       /**
@@ -2126,7 +2263,10 @@
        * @returns {RectGeometry}
        */
       clone() {
-        return RectGeometry.fromPointsVec2(this.getLeftTopPoint().clone(), this.getRightBottomPoint().clone())
+        return RectGeometry.fromPointsVec2(
+          this.getLeftTopPoint().clone(),
+          this.getRightBottomPoint().clone()
+        );
       }
 
       toString() {
@@ -2134,19 +2274,146 @@
       }
     }
 
-    /**
-     * 点与其他几何形状的关系
-     * @readonly
-     * @enum {String}
-     * @property {String} POINTRELATION.INNER - 在内部
-     * @property {String} POINTRELATION.OUTER - 在外部
-     * @property {String} POINTRELATION.BORDER - 在边界
-     */
-    const POINTRELATION = {
-        INNER: "inner",  
-        OUTER: "outer",
-        BORDER: "border",
-    };
+    class LineGeometry {
+      /**
+       *  @property {Vec2} _startPoint 起点坐标
+       */
+      _startPoint = null;
+
+      /**
+       *  @property {Vec2} _endPoint 起点坐标
+       */
+      _endPoint = null;
+
+      /**
+       * 创建一个二维坐标系上的线段
+       * @param {Vec2} start
+       * @param {Vec2} end
+       */
+      constructor(start, end) {
+        this.setStart(start);
+        this.setEnd(end);
+      }
+
+      /**
+       * 设置线段的起点坐标
+       * @param {Vec2} point
+       */
+      setStart(point) {
+        this._startPoint = point;
+      }
+
+      /**
+       * 设置线段的终点坐标
+       * @param {Vec2} point
+       */
+      setEnd(point) {
+        this._endPoint = point;
+      }
+
+      /**
+       * 获取线段的起点坐标
+       * @returns {Vec2}
+       */
+      getStart() {
+        return this._startPoint;
+      }
+
+      /**
+       * 获取线段的终点坐标
+       * @returns {Vec2}
+       */
+      getEnd() {
+        return this._endPoint;
+      }
+
+      /**
+       * 复制point的坐标信息
+       * @param {PointGeometry|Vec2} point
+       */
+      copy(line) {
+        this.set(line.getStart(), line.getEnd());
+      }
+
+      /**
+       * 获取线段的长度
+       * @returns {Number}
+       */
+      getLength() {
+        return this.getStart().distance(this.getEnd());
+      }
+
+      /**
+       * 获取直线的斜截式方程信息
+       */
+      getSlopeIntercept() {
+        let result = { k: NaN, b: NaN, x: NaN, y: NaN };
+        if (this.getStart().get("x") === this.getEnd().get("x")) {
+          result.x = this.getStart().get("x");
+        } else if (this.getStart().get("y") === this.getEnd().get("y")) {
+          result.y = this.getStart().get("y");
+        } else {
+          const determinant = Mat2.fromValues(
+            this.getStart().get("x"),
+            this.getStart().get("y"),
+            this.getEnd().get("x"),
+            this.getEnd().get("y")
+          ).determinant();
+          if (determinant) {
+            result.k =
+              Mat2.fromValues(
+                0,
+                this.getStart().get("y"),
+                0,
+                this.getEnd().get("y")
+              ).determinant() / determinant;
+            result.b =
+              Mat2.fromValues(
+                this.getStart().get("x"),
+                0,
+                this.getEnd().get("x"),
+                0
+              ).determinant() / determinant;
+          }
+        }
+        return result;
+      }
+
+      /**
+       * 获取直线方程的一般式
+       * @returns {Number[]}
+       */
+      getNormal() {
+        const result = [];
+        result.push(this.getStart().get("y") - this.getEnd().get("y"));
+        result.push(this.getStart().get("x") - this.getEnd().get("x"));
+        result.push(
+          Mat2.fromValues(
+            this.getStart().get("x"),
+            this.getStart().get("y"),
+            this.getEnd().get("x"),
+            this.getEnd().get("y")
+          ).determinant()
+        );
+        return result;
+      }
+
+      /**
+       * 克隆一个Point
+       * @returns {PointGeometry}
+       */
+      clone() {
+        return new LineGeometry(this.getStart(), this.getEnd());
+      }
+
+      /**
+       * 转化为字符串
+       * @returns {String}
+       */
+      toString() {
+        return `[LineGeometry (${this.getStart().toString()},${this.getEnd.toString()})]`;
+      }
+    }
 
     class CircleGeometry {
       /**
@@ -2255,13 +2522,9 @@
        */
       getExteriorRect() {
         const w = this.getDiameter();
-        return RectGeometry.fromPointVec2(
-          this.getCenter().subtract(
-            matrixExports.Vec2.fromValues(this.getRadius(), -this.getRadius())
-          ),
-          w,
-          w
-        );
+        const point = this.getCenter().clone();
+        point.subtract(matrixExports.Vec2.fromValues(this.getRadius(), -this.getRadius()));
+        return RectGeometry.fromPointVec2(point, w, w);
       }
 
       /**
@@ -2271,7 +2534,7 @@
        * @returns {POINTRELATION}
        * }
        */
-      getPointPosition(point, isAbsolute = true) {
+      getPointRelation(point, isAbsolute = true) {
         let distance = this.getCenter().squaredDistance(point.getPoint());
         if (!isAbsolute) {
           distance = matrixExports.Common.equals(distance, 0);
@@ -2291,7 +2554,7 @@
        * @param {Boolean} isabsolute 是绝对相等还是相对相等
        * @returns {POINTRELATION}
        */
-      getLinePosition(line, isAbsolute = true) {
+      getLineRelation(line, isAbsolute = true) {
         const normal = line.getNormal();
         const distance =
           (normal[0] * this.getCenter().get("x") +
@@ -2308,6 +2571,14 @@
         } else {
           return POINTRELATION.BORDER;
         }
+      }
+      /**
+       * 判断矩形与圆的位置关系
+       * @param {RectGeometry} rect
+       * @returns {RECTRELATION}
+       */
+      getRectRelation(rect) {
+        return this.getExteriorRect().getRectRelation(rect);
       }
 
       copy(circleGeometry) {
@@ -2886,13 +3157,42 @@
        * @property {CanvasRenderingContext2D.textRendering} textRendering 渲染文本时向渲染引擎提供应该如何优化的相关信息
        * @default "auto"
        */
-      textRendering  = "auto";
+      textRendering = "auto";
 
       /**
        * @property {String} wordSpacing 绘制文本时单词之间的间距
        * @default "0px"
        */
       wordSpacing = "0px";
+
+      _storeProps = [
+        "direction",
+        "fillStyle",
+        "filter",
+        "font",
+        "fontKerning",
+        "fontStretch",
+        "fontVariantCaps",
+        "globalAlpha",
+        "globalCompositeOperation",
+        "imageSmoothingEnabled",
+        "imageSmoothingQuality",
+        "letterSpacing",
+        "lineCap",
+        "lineDashOffset",
+        "lineJoin",
+        "lineWidth",
+        "miterLimit",
+        "shadowBlur",
+        "shadowColor",
+        "shadowOffsetX",
+        "shadowOffsetY",
+        "strokeStyle",
+        "textAlign",
+        "textBaseline",
+        "textRendering",
+        "wordSpacing",
+      ];
 
       /**
        * @property {String} text 图形的类型
@@ -2903,11 +3203,17 @@
        *  @property {String} text 图形的唯一标识
        */
       id = "";
-      
+
       /**
        * @property {CircleGeometry} 图形的几何形状
        */
-      geom = null
+      geom = null;
+
+      _drawStatus = DRAWSTATUS.NONE;
+
+      _canvasHeight = 0;
+
+      _canvasWidth = 0;
 
       /**
        * 图形类的基类, 抽象类，不能直接new
@@ -2917,6 +3223,7 @@
       constructor(type, id) {
         this.type = type;
         this.setId(id);
+        this.setDrawStatus(DRAWSTATUS.PROCESS);
       }
 
       /**
@@ -2934,77 +3241,277 @@
       getId() {
         return this.id;
       }
-      
+
       /**
        * 返回图形对应的几何形状
-       * @returns 
+       * @returns
        */
-      getGeomerty(){
+      getGeomerty() {
         return this.geom;
       }
 
       /**
        * 设置唯一表示
-       * @param {String} id 
+       * @param {String} id
        */
-      setId(id){
+      setId(id) {
         this.id = id || uuid();
       }
 
-      render(context){
+      getDrawStatus() {
+        return this._drawStatus;
+      }
 
+      setDrawStatus(status) {
+        this._drawStatus = status;
+      }
+
+      getVisible() {
+        return this.globalAlpha !== 0;
+      }
+
+      getCanvasHeight() {
+        return this._canvasHeight;
+      }
+
+      getCanvasWidth() {
+        return this._canvasWidth;
+      }
+
+      /**
+       * 渲染图形
+       * @param {CanvasRenderingContext2D} context
+       * @param {Boolean} isRedraw -是否强制渲染
+       */
+      render(context, isRedraw = false) {
+        this._canvasHeight = context.canvas.height;
+        this._canvasWidth = context.canvas.width;
+        if (this.getVisible(context)) {
+          if (isRedraw) {
+            this.setDrawStatus(DRAWSTATUS.PROCESS);
+            this.save();
+            this._updateStyle();
+            this._render(context);
+            this.restore();
+          } else {
+            if (this.getDrawStatus() === DRAWSTATUS.NONE) {
+              this.setDrawStatus(DRAWSTATUS.PROCESS);
+              this.save();
+              this._updateStyle();
+              this._render(context);
+              this.restore();
+            }
+          }
+          this.setDrawStatus(DRAWSTATUS.DONE);
+        }
+      }
+
+      _updateStyle() {
+        for (let prop of this._storeProps) {
+          context[prop] = this[prop];
+        }
       }
 
       /**
        * 转为字符串展示
        * @returns {string}
        */
-      toString(){
-        return `${this.getType()}Graphics geomerty=${this.getGeomerty().toString()}`
+      toString() {
+        return `${this.getType()}Graphics geomerty=${this.getGeomerty().toString()}`;
       }
     }
 
     class CircleGraphics extends Base {
+      /**
+       * 创建一个圆形
+       * @param {CircleGeometry} circleGeo 圆的几何形状
+       * @param {String} [id] 圆的唯一标识
+       */
+      constructor(circleGeo, id) {
+        super("Circle", id);
+        this.setGeomerty(circleGeo);
+      }
+
+      /**
+       * 创建一个圆形
+       * @param {Number} x 圆心x轴坐标
+       * @param {Number} y 圆心y轴坐标
+       * @param {Number} radius 圆的半径
+       * @param {String} [id] 圆的唯一标识
+       */
+      static fromValues() {
+        return new CircleGraphics(
+          new CircleGeometry(vec2.get("x"), vec2.get("y"), radius),
+          id
+        );
+      }
+
+      /**
+       * 创建一个圆形
+       * @param {Vec2} vec2
+       * @param {Number} radius
+       * @param {String} [id] 圆的唯一标识
+       * @returns
+       */
+      static fromVec2(vec2, radius, id) {
+        return new CircleGraphics(CircleGeometry.fromVec2(vec2, radius), id);
+      }
+
+      /**
+       * 设置圆的几何形状
+       * @param {CircleGeometry} circleGeo 圆的几何形状
+       */
+      setGeomerty(circleGeo) {
+        this.geom = new CircleGeometry(circleGeo);
+        this.setDrawStatus(DRAWSTATUS.NONE);
+      }
+
+      getVisible() {
+        console.log(
+          this.getGeomerty().getRectRelation(
+            new RectGeometry(0, 0, this.getCanvasWidth(), this.getCanvasHeight())
+          )
+        );
+        return (
+          super.getVisible() &&
+          this.getGeomerty().getRectRelation(
+            new RectGeometry(0, 0, this.getCanvasWidth(), this.getCanvasHeight())
+          ) !== RECTRELATION.SEPARATION
+        );
+      }
+
+      _render(context) {
+        context.arc(
+          this.getGeomerty().getCenter().get("x"),
+          this.getGeomerty().getCenter().get("y"),
+          this.getGeomerty().getRadius(),
+          0,
+          Math.PI * 2,
+          false
+        );
+        context.fill();
+        context.stroke();
+      }
+    }
+
+    class LineGraphics extends Base {
 
         /**
-         * 创建一个圆形
-         * @param {Number} x 圆心x轴坐标
-         * @param {Number} y 圆心y轴坐标
-         * @param {Number} radius 圆的半径
+         * @property {LineGeometry} geom 图形的几何对象
+         */
+        geom = null
+
+        /**
+         * 
+         * @param {Vec2} start 矩形左上角点x轴坐标
+         * @param {Vec2} end 矩形左上角点y轴坐标
+         * @param {String} [id] 矩形的唯一标识
+         */
+        constructor(start, end, id) {
+            super("rect", id);
+            this.geom = new LineGeometry(start, end);
+        }
+    }
+
+    class RectGraphics extends Base {
+
+        /**
+         * @property {RectGeometry} geom 图形的几何对象
+         */
+        geom = null
+
+        /**
+         * 
+         * @param {Number} x 矩形左上角点x轴坐标
+         * @param {Number} y 矩形左上角点y轴坐标
+         * @param {Number} width 矩形的宽度
+         * @param {Number} height 矩形的高度
+         * @param {String} [id] 矩形的唯一标识
+         */
+        constructor(x, y, width, height, id) {
+            super("rect", id);
+            this.geom = new RectGeometry(x, y, width, height);
+        }
+    }
+
+    class EllipseGraphics extends Base {
+
+        /**
+         * @property {EllipseGeometry} geom 图形的几何对象
+         */
+        geom = null
+
+        /**
+         * 创建一个椭圆 
+         * @param {Number} x 椭圆心x轴坐标
+         * @param {Number} y 椭圆心y轴坐标
+         * @param {Number} majorRadius 椭圆的长半径
+         * @param {Number} shortRadius 椭圆的短半径
          * @param {String} [id] 椭圆的唯一标识
          */
-        constructor(x, y, radius, id) {
-            super("Circle", id);
-            this.setGeomerty(x, y, radius);
+        constructor(x, y, majorRadius, shortRadius, id) {
+            super("ellipse", id);
+            this.geom = new EllipseGeometry(x, y, majorRadius, shortRadius);
         }
+    }
 
-        static fromVec2(vec2, radius, id){
-            return new CircleGraphics(vec2.get("x"), vec2.get("y"), radius, id)
+    class RingGraphics extends Base {
+
+        /**
+         * @property {RingGeometry} geom 图形的几何对象
+         */
+        geom = null
+
+        /**
+         * 
+         * @param {Number} x 矩形左上角点x轴坐标
+         * @param {Number} y 矩形左上角点y轴坐标
+         * @param {Number} width 矩形的宽度
+         * @param {Number} height 矩形的高度
+         * @param {String} [id] 矩形的唯一标识
+         */
+        constructor(x, y , radius, startAngle, endAngle, isClockwise, id) {
+            super("Sector", id);
+            this.geom = new RingGeometry(x, y , radius, startAngle, endAngle, isClockwise);
         }
+    }
 
-        setGeomerty(x, y, radius){
-            this.geom = new CircleGeometry(x, y, radius);
+    class SectorGraphics extends Base {
+
+        /**
+         * @property {SectorGeometry} geom 图形的几何对象
+         */
+        geom = null
+
+        /**
+         * 构建一个扇形
+         * @param {Number} x 扇形的圆心x坐标
+         * @param {Number} y 扇形的圆心y坐标
+         * @param {Number} radius 扇形的半径
+         * @param {Number} startAngle 扇形起始弧度值
+         * @param {Number} endAngle 扇形结束弧度值
+         * @param {Boolean} [isClockwise=false] 是否沿着顺时针方向绘制
+         * @param {String} [id] 矩形的唯一标识
+         */
+        constructor(x, y, radius, startAngle, endAngle, isClockwise, id) {
+            super("rect", id);
+            this.geom = new SectorGeometry(x, y, radius, startAngle, endAngle, isClockwise);
         }
-
-        setGeomertyWithVec2(vec2, radius){
-            this.geom = CircleGeometry.fromVec2(vec2, radius);
-        }
-
-        render(context){
-            console.log(context);
-        }
-
-        
     }
 
     exports.CircleGeometry = CircleGeometry;
     exports.CircleGraphics = CircleGraphics;
     exports.Container = Container;
     exports.EllipseGeometry = EllipseGeometry;
+    exports.EllipseGraphics = EllipseGraphics;
+    exports.LineGraphics = LineGraphics;
     exports.PointGeometry = PointGeometry;
     exports.RectGeometry = RectGeometry;
+    exports.RectGraphics = RectGraphics;
     exports.RingGeometry = RingGeometry;
+    exports.RingGraphics = RingGraphics;
     exports.SectorGeometry = SectorGeometry;
+    exports.SectorGraphics = SectorGraphics;
     exports.default = Stage;
 
     Object.defineProperty(exports, '__esModule', { value: true });

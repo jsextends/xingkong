@@ -65,16 +65,14 @@ export default class RectGeometry {
   setSize(width, height) {
     this._width = width;
     this._height = height;
-    this._lbPoint = this._ltPoint
-      .clone()
-      .add(Vec2.fromValues(0, -this._height));
-    this._rtPoint = this._ltPoint.clone().add(Vec2.fromValues(this._width, 0));
-    this._rbPoint = this._ltPoint
-      .clone()
-      .add(Vec2.fromValues(this._width, -this._height));
-    this._centerPoint = this._ltPoint
-      .clone()
-      .add(Vec2.fromValues(this._width / 2, -this._height / 2));
+    this._lbPoint = this._ltPoint.clone();
+    this._lbPoint.add(Vec2.fromValues(0, -this._height));
+    this._rtPoint = this._ltPoint.clone();
+    this._rtPoint.add(Vec2.fromValues(this._width, 0));
+    this._rbPoint = this._ltPoint.clone();
+    this._rbPoint.add(Vec2.fromValues(this._width, -this._height));
+    this._centerPoint = this._ltPoint.clone();
+    this._centerPoint.add(Vec2.fromValues(this._width / 2, -this._height / 2));
   }
 
   /**
@@ -167,7 +165,7 @@ export default class RectGeometry {
 
   /**
    * 判断2个矩形的位置关系
-   * @param {RectGeometry} rect 
+   * @param {RectGeometry} rect
    * @returns {RECTRELATION}
    */
   getRectRelation(rect) {
@@ -179,14 +177,18 @@ export default class RectGeometry {
     const b1 = rect.getLeftTopPoint().get("y");
     const a2 = rect.getRightBottomPoint().get("x");
     const b2 = rect.getRightBottomPoint().get("y");
-    if (
-      x2 <= a1 || a2 <= x1 || y2 <= b1 || b2 <= y1
+    if (x2 <= a1 || a2 <= x1 || y2 <= b1 || b2 <= y1) {
+      return RECTRELATION.SEPARATION;
+    } else if (
+      Math.max(x1, a1) < Math.min(x2, a2) &&
+      Math.max(y1, b1) < Math.min(y2, b2)
     ) {
-      return RECTRELATION.SEPARATION
-    } else if(Math.max(x1, a1) < Math.min(x2,a2) && Math.max(y1, b1) < Math.min(y2,b2)){
-      return RECTRELATION.INTERSECT
-    } else if((x1 <= a1 && a2 <= x2 && y1 <= b1 && b2 <= y2) || (a1 <= x1 && x2 <= a2 && b1 <= y1 && y2 <= b2)){
-      return RECTRELATION.CONTAIN
+      return RECTRELATION.INTERSECT;
+    } else if (
+      (x1 <= a1 && a2 <= x2 && y1 <= b1 && b2 <= y2) ||
+      (a1 <= x1 && x2 <= a2 && b1 <= y1 && y2 <= b2)
+    ) {
+      return RECTRELATION.CONTAIN;
     }
   }
 

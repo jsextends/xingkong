@@ -110,13 +110,9 @@ export default class CircleGeometry {
    */
   getExteriorRect() {
     const w = this.getDiameter();
-    return RectGeometry.fromPointVec2(
-      this.getCenter().subtract(
-        Vec2.fromValues(this.getRadius(), -this.getRadius())
-      ),
-      w,
-      w
-    );
+    const point = this.getCenter().clone();
+    point.subtract(Vec2.fromValues(this.getRadius(), -this.getRadius()));
+    return RectGeometry.fromPointVec2(point, w, w);
   }
 
   /**
@@ -166,11 +162,11 @@ export default class CircleGeometry {
   }
   /**
    * 判断矩形与圆的位置关系
-   * @param {RectGeometry} rect 
+   * @param {RectGeometry} rect
    * @returns {RECTRELATION}
    */
-  getRectRelation(rect){
-    return this.getExteriorRect().getRectRelation(rect)
+  getRectRelation(rect) {
+    return this.getExteriorRect().getRectRelation(rect);
   }
 
   copy(circleGeometry) {

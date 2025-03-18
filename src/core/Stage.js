@@ -135,13 +135,13 @@ export default class Stage {
 
   redraw(){
     for (let name of this._containerNames) {
-      this._containers[name].redraw(this.getContext(), true);
+      this._containers[name].render(this.getContext(), true);
     }
   }
 
   draw() {
     for (let name of this._containerNames) {
-      this._containers[name].draw(this.getContext(), false);
+      this._containers[name].render(this.getContext(), false);
     }
   }
 

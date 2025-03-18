@@ -50,19 +50,30 @@ export default class CircleGraphics extends Base {
     this.setDrawStatus(DRAWSTATUS.NONE);
   }
 
-  getVisible(context) {
+  getVisible() {
+    console.log(
+      this.getGeomerty().getRectRelation(
+        new RectGeometry(0, 0, this.getCanvasWidth(), this.getCanvasHeight())
+      )
+    );
     return (
       super.getVisible() &&
       this.getGeomerty().getRectRelation(
-        RectGeometry.fromValues(
-          0,
-          0,
-          context.canvas.width,
-          context.canvas.height
-        )
+        new RectGeometry(0, 0, this.getCanvasWidth(), this.getCanvasHeight())
       ) !== RECTRELATION.SEPARATION
     );
   }
 
-  _render() {}
+  _render(context) {
+    context.arc(
+      this.getGeomerty().getCenter().get("x"),
+      this.getGeomerty().getCenter().get("y"),
+      this.getGeomerty().getRadius(),
+      0,
+      Math.PI * 2,
+      false
+    );
+    context.fill();
+    context.stroke();
+  }
 }

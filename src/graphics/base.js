@@ -146,6 +146,35 @@ export default class Base {
    */
   wordSpacing = "0px";
 
+  _storeProps = [
+    "direction",
+    "fillStyle",
+    "filter",
+    "font",
+    "fontKerning",
+    "fontStretch",
+    "fontVariantCaps",
+    "globalAlpha",
+    "globalCompositeOperation",
+    "imageSmoothingEnabled",
+    "imageSmoothingQuality",
+    "letterSpacing",
+    "lineCap",
+    "lineDashOffset",
+    "lineJoin",
+    "lineWidth",
+    "miterLimit",
+    "shadowBlur",
+    "shadowColor",
+    "shadowOffsetX",
+    "shadowOffsetY",
+    "strokeStyle",
+    "textAlign",
+    "textBaseline",
+    "textRendering",
+    "wordSpacing",
+  ];
+
   /**
    * @property {String} text 图形的类型
    */
@@ -162,6 +191,10 @@ export default class Base {
   geom = null;
 
   _drawStatus = DRAWSTATUS.NONE;
+
+  _canvasHeight = 0;
+
+  _canvasWidth = 0;
 
   /**
    * 图形类的基类, 抽象类，不能直接new
@@ -214,8 +247,16 @@ export default class Base {
     this._drawStatus = status;
   }
 
-  getVisible(){
-    return this.globalAlpha === 0
+  getVisible() {
+    return this.globalAlpha !== 0;
+  }
+
+  getCanvasHeight() {
+    return this._canvasHeight;
+  }
+
+  getCanvasWidth() {
+    return this._canvasWidth;
   }
 
   /**
@@ -224,17 +265,31 @@ export default class Base {
    * @param {Boolean} isRedraw -是否强制渲染
    */
   render(context, isRedraw = false) {
+    this._canvasHeight = context.canvas.height;
+    this._canvasWidth = context.canvas.width;
     if (this.getVisible(context)) {
       if (isRedraw) {
         this.setDrawStatus(DRAWSTATUS.PROCESS);
+        this.save();
+        this._updateStyle();
         this._render(context);
+        this.restore();
       } else {
         if (this.getDrawStatus() === DRAWSTATUS.NONE) {
           this.setDrawStatus(DRAWSTATUS.PROCESS);
+          this.save();
+          this._updateStyle();
           this._render(context);
+          this.restore();
         }
       }
       this.setDrawStatus(DRAWSTATUS.DONE);
+    }
+  }
+
+  _updateStyle() {
+    for (let prop of this._storeProps) {
+      context[prop] = this[prop];
     }
   }
 
